@@ -7,9 +7,7 @@ export default {
   state: {
     List: {},
     Detail: {},
-    Res: {},
-    Holder: {},
-    Count: {}
+    Res: {}
   },
   mutations: {
     [types.SET_TOKENS_DATA](state, payload) {
@@ -20,13 +18,7 @@ export default {
     },
     [types.SUBMIT_TOKEN_DATA](state, payload) {
       state.Res = payload.info
-    },
-    [types.SET_TOKENHOLDER_DATA](state, payload) {
-      state.Holder = payload.info
-    },
-    [types.SET_TOKENHOLDERCOUNT_DATA](state, payload) {
-      state.Count = payload.info
-    },
+    }
   },
   actions: {
 
@@ -43,39 +35,6 @@ export default {
           info: {
             list: response.result.records,
             total: response.result.total
-          }
-        })
-      }).catch(error => {
-        console.log(error)
-      })
-    },
-    GetTokenHolder({dispatch, commit}, $param) {
-      let apiUrl = ($param.net === "testnet") ? process.env.TEST_EXPLORE_URL : process.env.EXPLORE_URL;
-      let url = apiUrl + 'oep4/getAssetHolder?qid=1&contract=' + $param.contractHash + '&'
-        + 'from=' + (($param.pageNumber - 1) * $param.pageSize) + '&count=' + $param.pageSize;
-
-      return axios.get(url).then(response => {
-        commit({
-          type: types.SET_TOKENHOLDER_DATA,
-          info: {
-            list: response.data.result,
-            total: 1000,
-            basicRank: (Number($param.pageNumber) - 1) * $param.pageSize + 1
-          }
-        })
-      }).catch(error => {
-        console.log(error)
-      })
-    },
-    GetTokenHolderCount({dispatch, commit}, $param) {
-      let apiUrl = ($param.net === "testnet") ? process.env.TEST_EXPLORE_URL : process.env.EXPLORE_URL;
-      let url = apiUrl + 'oep4/getAssetHolderCount?qid=1&contract=' + $param.contractHash
-
-      return axios.get(url).then(response => {
-        commit({
-          type: types.SET_TOKENHOLDERCOUNT_DATA,
-          info: {
-            total: response.data.result
           }
         })
       }).catch(error => {

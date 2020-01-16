@@ -1,10 +1,10 @@
-# ont-explorer-frontEnd
+# explorer-ontfs-web
 
-> ONTology Explorer FrontEnd
+> ONTology ONTFS Explorer
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 yarn install
 
@@ -13,3 +13,4 @@ yarn run dev
 
 # build for production with minification
 yarn run build
+```

@@ -111,9 +111,6 @@
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#scABI">{{ $t('tokens.detail.abi') }}</a>
       </li>
-      <li class="nav-item" v-if="$route.params.contractType === 'oep4'">
-        <a class="nav-link" data-toggle="tab" href="#scHolder">{{ $t('tokens.detail.holder') }}</a>
-      </li>
     </ul>
 
     <!-- Tab panes -->
@@ -146,6 +143,7 @@
                       {{tx.tx_hash.substr(0,4) + '...' + tx.tx_hash.substr(60)}}
                     </td>
                     <td class="normal_color">{{Number(tx.fee).toString()}}</td>
+
 <!--                     <td v-if="$route.params.contractType === 'oep5'"
                         class="normal_color">{{ typeof(tx.json_url) === 'undefined' ? '' : tx.json_url.name }}</td> -->
                     <td v-if="$route.params.contractType === 'oep5' " 
@@ -164,6 +162,7 @@
                   </tbody>
                 </table>
               </div>
+
               <ont-pagination :total="contractTxList.total"></ont-pagination>
             </div>
           </div>
@@ -204,43 +203,6 @@
           </div>
         </div>
       </div>
-      <div id="scHolder" class="tab-pane" v-if="$route.params.contractType === 'oep4'">
-        <div class="row" v-if="holder.Total !== 0">
-          <div class="col ">
-            <div class="detail-col">
-              <ont-pagination :total="holderCount.total"></ont-pagination>
-              
-              <!-- <o-load v-if="!(holder.list && loadingFlag)" ></o-load> -->
-              <div class="table-responsive">
-                <table class="table">
-                  <thead>
-                  <tr class="f-color">
-                    <th class="td-tx-head font-size18 font-Blod">{{ $t('addressList.rank') }}</th>
-                    <th class="td-tx-head font-size18 font-Blod">{{ $t('addressList.name') }}</th>
-                    <th class="td-tx-head font-size18 font-Blod">{{ $t('addressList.balance') }}</th>
-                    <th class="td-tx-head font-size18 font-Blod">{{ $t('addressList.percent') }}</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(address,index) in holder.list">
-                    <td class="font-size14 important_color font-Regular">
-                      {{Number(holder.basicRank) + index}}
-                    </td>
-
-                    <td class="font-size14 s-color font-Regular pointer" @click="toAddressDetailPage(address.addressShow)">{{address.addressShow.substr(0,6) + '...' + address.addressShow.substr(28)}}</td>
-
-                    <!-- <td class="font-size14 normal_color font-Regular">{{$HelperTools.toFinancialVal(address.showbalance)}}</td> -->
-                    <td class="font-size14 normal_color font-Regular">{{address.showbalance}}</td>
-                    <td class="font-size14 normal_color font-Regular">{{(address.percent * 100).toFixed(4)}}%</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-              <ont-pagination :total="holderCount.total"></ont-pagination>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -249,7 +211,6 @@
   import {mapState} from 'vuex'
   import Clipboard from 'clipboard';
   import HelperTool from "./../../helpers/helper"
-  const BigNumber = require('bignumber.js');
 
   export default {
     name: "Token-Detail",
@@ -262,8 +223,6 @@
       'token':function(){
         console.log("token",this.token)
         this.tokenData = this.token.list
-        this.$store.dispatch('GetTokenHolder', this.$route.params).then();
-        this.$store.dispatch('GetTokenHolderCount', this.$route.params).then();
       },
       'contractTxList':function(){
         console.log("tokenTXList",this.contractTxList)
@@ -282,28 +241,12 @@
             }
           }
         }
-      },
-      'holder':function() {
-        let num = "1"
-        for(var j =0;j<this.tokenData.decimals;j++){
-          num = num + "0"
-        }
-        num = Number(num)
-        console.log(num)
-        for(var i =0;i<this.holder.list.length;i++){
-          this.holder.list[i].addressShow = new Ont.Crypto.Address(this.holder.list[i].address).toBase58()
-          let x = new BigNumber(this.holder.list[i].balance)
-          let y = new BigNumber(num)
-          this.holder.list[i].showbalance = x.dividedBy(y)
-        }
       }
     },
     computed: {
       ...mapState({
         contractTxList: state => state.Contracts.TxList,
         token: state => state.Tokens.Detail,
-        holder: state => state.Tokens.Holder,
-        holderCount: state => state.Tokens.Count,
       })
     },
     data() {
@@ -316,16 +259,6 @@
       }
     },
     methods: {
-      toAddressDetailPage($address) {
-        if (this.$route.params.net == undefined) {
-          this.$router.push({name: 'AddressDetail', params: {address: $address, assetName:"ALL", pageSize: 20, pageNumber: 1}})
-        } else {
-          this.$router.push({
-            name: 'AddressDetailTest',
-            params: {address: $address, assetName:"ALL", pageSize: 20, pageNumber: 1, net: "testnet"}
-          })
-        }
-      },
       getTokenData() {
         this.token.list = '';
         this.loadingFlag = false;
